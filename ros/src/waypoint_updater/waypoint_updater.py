@@ -37,15 +37,51 @@ class WaypointUpdater(object):
         self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
 
         # TODO: Add other member variables you need below
-
+        self.wpts = Lane()   # base waypoints variable
+        self.fwpts = Lane()  # final waypoints varialble
+        
         rospy.spin()
-
+    
     def pose_cb(self, msg):
         # TODO: Implement
+
+        # Macro to compute the distance copied from distance function
+        dl = lambda a, b: math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2  + (a.z-b.z)**2)
+   
+        distM = 1000 # High value Minimum distance
+        wptP = 0     # closest waypoint index
+        # finding the closest waypoint to the car
+        for i in range(len( self.wpts.waypoints)):
+            # Computing the distance
+            dist = dl(self.wpts.waypoints[i].pose.pose.position,msg.pose.position)
+            if(dist<distM):
+                wptP = i;
+                distM = dist;
+        
+
+        # constructing the final waypoints
+        i = 0
+        self.fwpts.waypoints = []
+        for j in range(wptP,wptP+LOOKAHEAD_WPS):
+            self.fwpts.waypoints.append(self.wpts.waypoints[j])
+            self.fwpts.waypoints[i].twist.twist.linear.x = self.wpts.waypoints[j].twist.twist.linear.x
+            i+=1
+
+        # Publishing the final waypoints
+        rate = rospy.Rate(50) # 50hz
+
+        # do we need the while loop in this case ??
+        while not rospy.is_shutdown():
+            self.final_waypoints_pub.publish(self.fwpts)
+            rate.sleep()
+            
+        
         pass
 
     def waypoints_cb(self, waypoints):
         # TODO: Implement
+        print ("*********** waypoints list call *******************")
+        self.wpts = waypoints;
         pass
 
     def traffic_cb(self, msg):
