@@ -25,64 +25,63 @@ LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this n
 
 
 class WaypointUpdater(object):
-    def __init__(self):
+	def __init__(self):
         rospy.init_node('waypoint_updater')
 
         rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
 
         # TODO: Add a subscriber for /traffic_waypoint and /obstacle_waypoint below
-
+        #rospy.Subscriber('/traffic_waypoint', Waypoint, self.traffic_cb)
+        #rospy.Subscriber('/obstacle_waypoint', Waypoint, self.obstacle_cb)
 
         self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
 
         # TODO: Add other member variables you need below
-        self.wpts = Lane()   # base waypoints variable
-        self.fwpts = Lane()  # final waypoints varialble
-        
-        rospy.spin()
-    
-    def pose_cb(self, msg):
+        #self.wpts = Lane()   # base waypoints variable
+        #self.fwpts = Lane()  # final waypoints varialble
+		#self.current_pose = None
+		self.current_pose = PoseStamped()
+		#self.waypoints = None
+		self.waypoints = Lane()
+		self.closest_point = None
+		#self.final_waypoints = None
+		self.final_waypoints = Lane()
+
+		rospy.spin()
+
+	def pose_cb(self, msg):
         # TODO: Implement
-
-        # Macro to compute the distance copied from distance function
-        dl = lambda a, b: math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2  + (a.z-b.z)**2)
-   
-        distM = 1000 # High value Minimum distance
-        wptP = 0     # closest waypoint index
-        # finding the closest waypoint to the car
-        for i in range(len( self.wpts.waypoints)):
-            # Computing the distance
-            dist = dl(self.wpts.waypoints[i].pose.pose.position,msg.pose.position)
-            if(dist<distM):
-                wptP = i;
-                distM = dist;
-        
-
-        # constructing the final waypoints
-        i = 0
-        self.fwpts.waypoints = []
-        for j in range(wptP,wptP+LOOKAHEAD_WPS):
-            self.fwpts.waypoints.append(self.wpts.waypoints[j])
-            self.fwpts.waypoints[i].twist.twist.linear.x = self.wpts.waypoints[j].twist.twist.linear.x
-            i+=1
-
-        # Publishing the final waypoints
-        rate = rospy.Rate(50) # 50hz
-
-        # do we need the while loop in this case ??
-        while not rospy.is_shutdown():
-            self.final_waypoints_pub.publish(self.fwpts)
-            rate.sleep()
-            
-        
-        pass
+		self.current_pose = msg
+		self.position = msg.pose.position
 
     def waypoints_cb(self, waypoints):
         # TODO: Implement
-        print ("*********** waypoints list call *******************")
-        self.wpts = waypoints;
+		self.waypoints = waypoints
+		'''
+		print ("*********** waypoints list call *******************")
+        for i in range(len(self.waypoints)):
+		print(self.waypoints[i])
+		'''
         pass
+
+	def current_waypoint(self)
+
+		# Macro to compute the distance copied from distance function
+        dl = lambda a, b: math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2  + (a.z-b.z)**2)
+		distM = 1000 # High value Minimum distance
+		wptP = 0     # closest waypoint index
+
+		#finding the closest waypoint to the car
+        for i in range(len(self.waypoints)):
+			waypoint_position = self.waypoints.waypoints[i].pose.pose.position
+			dist = dl(waypoint_position, self.position)	# Computing the distance
+			if(dist < distM):
+						wptP = i;
+						distM = dist;
+
+		#assign the closest point
+		self.closest_point = wptP
 
     def traffic_cb(self, msg):
         # TODO: Callback for /traffic_waypoint message. Implement
@@ -106,6 +105,16 @@ class WaypointUpdater(object):
             wp1 = i
         return dist
 
+    def final_waypoints(self):
+
+		i=0
+		for j in range(self.closest_point,self.closest_point+LOOKAHEAD_WPS):
+			self.final_waypoints.waypoints.append(self.waypoints.waypoints[j])
+			self.final_waypoints.waypoints[i].twist.twist.linear.x = self.waypoints.waypoints[j].twist.twist.linear.x
+		i+=1
+
+    def publish_final_waypoint(self):
+		self.final_waypoints_pub.publish(self.final_waypoints)
 
 if __name__ == '__main__':
     try:
