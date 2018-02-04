@@ -64,7 +64,7 @@ class WaypointUpdater(object):
         '''
         pass
 
-    def current_waypoint(self)
+    def current_waypoint(self):
 
         # Macro to compute the distance copied from distance function
         dl = lambda a, b: math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2  + (a.z-b.z)**2)
