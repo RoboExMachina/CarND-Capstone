@@ -86,12 +86,12 @@ class WaypointUpdater(object):
                     i+=1
             else:
                 # Copy the first part of final waypoints till the end of the map
-                for j in range(wptP+1,len(self.wpts.waypoints)):
+                for j in range(wptP+1,len(self.wpts.waypoints)-1):
                     self.fwpts.waypoints.append(self.wpts.waypoints[j])
                     self.fwpts.waypoints[i].twist.twist.linear.x = self.wpts.waypoints[j].twist.twist.linear.x
                     i+=1
                 # Copy the second part at the begining of the map
-                for j in range(0,200-len(self.wpts.waypoints)-wptP):
+                for j in range(0,LOOKAHEAD_WPS-(len(self.wpts.waypoints)-wptP)):
                     self.fwpts.waypoints.append(self.wpts.waypoints[j])
                     self.fwpts.waypoints[i].twist.twist.linear.x = self.wpts.waypoints[j].twist.twist.linear.x
                     i+=1
