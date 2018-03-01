@@ -11,8 +11,8 @@ import cv2
 class TLClassifier(object):
     def __init__(self):
         #Load classifier
-        classification_graph = 'light_classification/classification_model/output_graph.pb'
-        classification_labels = 'light_classification/classification_model/output_labels.txt'
+        classification_graph = 'light_classification/classification_model/graph.pb'
+        classification_labels = 'light_classification/classification_model/labels.txt'
         if not tf.gfile.Exists(classification_labels):
             tf.logging.fatal('labels file does not exist %s', classification_labels)
         self.labels = self.load_labels(classification_labels)
