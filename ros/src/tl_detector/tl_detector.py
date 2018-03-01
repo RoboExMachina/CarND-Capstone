@@ -109,7 +109,7 @@ class TLDetector(object):
         minIdx = -1      
         px = pose.position.x
         py = pose.position.y
-        rospy.loginfo("len(wp): %d", len(self.waypoints))
+        #rospy.loginfo("len(wp): %d", len(self.waypoints))
         for idx in range(len(self.waypoints)):
             waypoint = self.waypoints[idx].pose.pose;
             wpx = waypoint.position.x
@@ -134,7 +134,6 @@ class TLDetector(object):
         if(not self.has_image):
             self.prev_light_loc = None
             return False
-
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
         #Get classification

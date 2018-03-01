@@ -6,6 +6,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageColor
 from scipy.stats import norm
+import cv2
 
 class TLClassifier(object):
     def __init__(self):
@@ -16,12 +17,20 @@ class TLClassifier(object):
             tf.logging.fatal('labels file does not exist %s', classification_labels)
         self.labels = self.load_labels(classification_labels)
         self.labels_dic = {
-                            'red':0,
-                            'yellow':1,
+                            'none': 4,
                             'green':2,
+                            'red':0,
+                            'yellow':1
                             }
-        self.sess = self.load_graph(classification_graph)
         
+        #self.sess = self.load_graph(classification_graph)
+        with tf.Session() as persisted_sess:
+            with tf.gfile.FastGFile(classification_graph, 'rb') as f:
+                graph_def = tf.GraphDef()
+                graph_def.ParseFromString(f.read())
+                persisted_sess.graph.as_default()
+                tf.import_graph_def(graph_def, name='')
+            self.sess = persisted_sess        
 
     def load_image(self, filename):
       """Read in the image_data to be classified."""
@@ -49,7 +58,7 @@ class TLClassifier(object):
         #   dimension represents the input image count, and the other has
         #   predictions per class
         softmax_tensor = self.sess.graph.get_tensor_by_name(output_layer_name)
-        predictions, = self.sess.run(softmax_tensor, {input_layer_name: image_data, 'Placeholder:0':1.0})
+        predictions, = self.sess.run(softmax_tensor, {input_layer_name: image_data})
 
         # Sort to show labels in order of confidence
         top_k = predictions.argsort()[-num_top_predictions:][::-1]
@@ -72,5 +81,8 @@ class TLClassifier(object):
         input_layer = 'DecodeJpeg/contents:0'
         output_layer = 'final_result:0' 
         num_top_predictions = 1
-        predict_label = self.run_graph(image, self.labels, input_layer, output_layer, num_top_predictions)        
+        cv2.imwrite("screenshot.jpg", image)
+        image_path = "screenshot.jpg"
+        image_data = self.load_image(image_path)      
+        predict_label = self.run_graph(image_data, self.labels, input_layer, output_layer, num_top_predictions)        
         return self.labels_dic[predict_label]
