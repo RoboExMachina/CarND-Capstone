@@ -13,6 +13,8 @@ This is the project repo for the final project of the Udacity Self-Driving Car N
 Please use **one** of the two installation options, either native **or** docker installation.
 
 ### Traffic Light classification
+Approach used for the classification task: [Retraining Inception's Final Layer on traffic light colors!](https://www.tensorflow.org/tutorials/image_retraining)  
+
 Most recent trained .pb file: https://www.dropbox.com/s/w8leoxo3f8o89jh/output_graph.pb?dl=0   
 Custom traffic light dataset with images grabbed from simulator,  LISA and Bosch Small Traffic Lights Dataset: https://www.dropbox.com/s/ftz6jvv4qbilsry/trafficlights.zip?dl=0  
 
