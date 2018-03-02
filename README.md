@@ -12,6 +12,18 @@ This is the project repo for the final project of the Udacity Self-Driving Car N
 
 Please use **one** of the two installation options, either native **or** docker installation.
 
+### Traffic Light classification
+Most recent trained .pb file: https://www.dropbox.com/s/w8leoxo3f8o89jh/output_graph.pb?dl=0   
+Custom traffic light dataset with images grabbed from simulator,  LISA and Bosch Small Traffic Lights Dataset: https://www.dropbox.com/s/ftz6jvv4qbilsry/trafficlights.zip?dl=0  
+
+To retrain a new model:  
+git clone https://github.com/tensorflow/tensorflow  
+cd tensorflow && git checkout r.1.3  
+python tensorflow/examples/image_retraining/retrain.py --image_dir ~/trafficlights  
+
+
+
+
 ### Native Installation
 
 * Be sure that your workstation is running Ubuntu 16.04 Xenial Xerus or Ubuntu 14.04 Trusty Tahir. [Ubuntu downloads can be found here](https://www.ubuntu.com/download/desktop).
