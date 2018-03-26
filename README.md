@@ -23,7 +23,7 @@ git clone https://github.com/tensorflow/tensorflow
 cd tensorflow && git checkout r.1.3  
 python tensorflow/examples/image_retraining/retrain.py --image_dir ~/trafficlights  
 
-
+Before color classification, traffic light object detection is performed on input images using the Tensorflow Object Detection API running a frozen SSD w/Mobilenet detector trained on COCO dataset.  
 
 
 ### Native Installation
