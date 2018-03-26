@@ -2,7 +2,7 @@
 ## Team RoboExMachina
 Name | Email
 ---- | -----
-Peter Schüllermann | peter.schuellermann@gmail.comn
+Peter Schüllermann | peter.schuellermann@gmail.com
 Walid Chagra | waleedchargra@gmail.com 
 Kamil Kaczmarczyk | kamilkaczmarczyk89@gmail.com
 Francesco Oliva |olibartfast@gmail.com 
