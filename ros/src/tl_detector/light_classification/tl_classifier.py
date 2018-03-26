@@ -8,6 +8,7 @@ from PIL import ImageColor
 from scipy.stats import norm
 import cv2
 
+
 class TLClassifier(object):
     def __init__(self):
         #Load classifier
@@ -68,6 +69,7 @@ class TLClassifier(object):
             print('%s (score = %.5f)' % (human_string, score))
         return human_string    
     
+  
     def get_classification(self, image):
         """Determines the color of the traffic light in the image
 
@@ -83,6 +85,6 @@ class TLClassifier(object):
         num_top_predictions = 1
         cv2.imwrite("screenshot.jpg", image)
         image_path = "screenshot.jpg"
-        image_data = self.load_image(image_path)      
+        image_data = self.load_image(image_path)             
         predict_label = self.run_graph(image_data, self.labels, input_layer, output_layer, num_top_predictions)        
         return self.labels_dic[predict_label]

@@ -12,6 +12,8 @@ import cv2
 import yaml
 import math
 import numpy as np
+import tl_ssd_detector as ssd
+
 
 STATE_COUNT_THRESHOLD = 3
 
@@ -50,14 +52,15 @@ class TLDetector(object):
         self.last_state = TrafficLight.UNKNOWN
         self.last_wp = -1
         self.state_count = 0
+        self.sight_distance = 100
 
         rospy.spin()
 
     def pose_cb(self, msg):
         self.pose = msg
 
-    def waypoints_cb(self, msg):
-        self.waypoints = msg.waypoints
+    def waypoints_cb(self, waypoints):
+        self.waypoints = waypoints.waypoints
 
     def traffic_cb(self, msg):
         self.lights = msg.lights
@@ -85,7 +88,8 @@ class TLDetector(object):
             self.state = state
         elif self.state_count >= STATE_COUNT_THRESHOLD:
             self.last_state = self.state
-            light_wp = light_wp if state == TrafficLight.RED else -1
+            light_wp = light_wp 
+            if state == TrafficLight.RED else -1
             self.last_wp = light_wp
             self.upcoming_red_light_pub.publish(Int32(light_wp))
         else:
@@ -134,10 +138,16 @@ class TLDetector(object):
         if(not self.has_image):
             self.prev_light_loc = None
             return False
-        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-
+       
+        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
+        cv2.imwrite("screenshot.jpg", cv_image)
+        image = ssd.Image.open('screenshot.jpg')
+        imagecropped = ssd.pipeline_ssd(image)
         #Get classification
-        return self.light_classifier.get_classification(cv_image)
+        if imagecropped is None:
+            return 4 # none = id #4
+        else:
+            return self.light_classifier.get_classification(imagecropped)
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
@@ -159,7 +169,7 @@ class TLDetector(object):
         else:
             return -1, TrafficLight.UNKNOWN
         
-        #find the closest visible traffic light (if one exists)
+        #find the closest traffic light
         for sl_pos in stop_line_positions:
             light_stop_pose = Pose()
             light_stop_pose.position.x = sl_pos[0]
@@ -176,7 +186,7 @@ class TLDetector(object):
         if ((car_position is not None) and (light_mindist_stop_wp is not None)):
             light_dist  = abs(car_position - light_mindist_stop_wp)
 
-        if light and light_dist  < 100:       #check traffic light if it's within  a waypoints distance
+        if light and light_dist  < self.sight_distance: # check traffic light is in the range of a predifined number of waypoints
             state = self.get_light_state(light)
             return light_mindist_stop_wp, state
 

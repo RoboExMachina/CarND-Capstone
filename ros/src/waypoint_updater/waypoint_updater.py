@@ -61,7 +61,8 @@ class WaypointUpdater(object):
             dl = lambda a, b: math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2  + (a.z-b.z)**2)
 
             #Minimum distance equal to the first value
-            distM = dl(self.wpts.waypoints[0].pose.pose.position,msg.pose.position)  
+            #distM = dl(self.wpts.waypoints[0].pose.pose.position,msg.pose.position)  
+            distM = 1e6
             
             wptP = 0  # closest waypoint index
             # finding the closest waypoint to the car
